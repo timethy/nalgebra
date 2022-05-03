@@ -6,6 +6,11 @@ use na::{Unit, UnitQuaternion};
 use crate::proptest::*;
 use proptest::{prop_assert, proptest};
 
+#[test]
+fn quaternion_mean_of_identity() {
+    assert_relative_eq!(UnitQuaternion::mean_of([UnitQuaternion::<f64>::identity(); 16]), UnitQuaternion::identity(), epsilon = 1e-6);
+}
+
 proptest!(
     /*
      *
@@ -262,5 +267,12 @@ proptest!(
             && uqMuv == &uq * &uv
             && uqMuv == uq * &uv
             && uqMuv == &uq * uv)
+    }
+
+    #[test]
+    fn mean_of_two_quaternions(q1 in unit_quaternion(), q2 in unit_quaternion()) {
+        let q1 = UnitQuaternion::new_unchecked(q1.into_inner());
+        let q2 = UnitQuaternion::new_unchecked(q2.into_inner());
+        prop_assert!(relative_eq!(UnitQuaternion::mean_of([q1, q2]), q1.slerp(&q2, 0.5), epsilon = 1e-5));
     }
 );
